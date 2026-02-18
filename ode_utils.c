@@ -43,7 +43,7 @@ LossPair var_solve(
 
 FunctionTable* ode_solve(
     const BiVarFunc func,
-    const double y_start,
+    const Coord anchor,
     const double r_start,
     const double r_end,
     const int r_amt) {
@@ -55,13 +55,25 @@ FunctionTable* ode_solve(
     table->r_end = r_end;
 
     const double step = (r_end - r_start) / r_amt;
+    const int pos = (int)((anchor.x - r_start) / step);
 
-    double x = r_start;
-    double y = y_start;
-    for (int i = 0; i < r_amt; i++) {
+    double x = anchor.x;
+    double y = anchor.y;
+
+    table->data[pos] = anchor.y;
+    for (int i = pos + 1; i < r_amt; i++) {
         table->data[i] = y;
         y += step * func(x, y);
         x += step;
+    }
+
+    x = anchor.x;
+    y = anchor.y;
+
+    for (int i = pos - 1; i >= 0; i--) {
+        table->data[i] = y;
+        y -= step * func(x, y);
+        x -= step;
     }
 
     return table;

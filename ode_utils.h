@@ -17,6 +17,11 @@ typedef struct {
     double loss;
 } LossPair;
 
+typedef struct {
+    double x;
+    double y;
+} Coord;
+
 double eval_func(const FunctionTable *table, double x);
 double deriv(UnaryFunc f, double x);
 
@@ -29,7 +34,7 @@ LossPair var_solve(
 
 FunctionTable* ode_solve(
     BiVarFunc func, 
-    double y_start, 
+    Coord anchor,
     double r_start, 
     double r_end, 
     int r_amt);
