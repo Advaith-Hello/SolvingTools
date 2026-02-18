@@ -33,7 +33,7 @@ LossPair var_solve(
     int amt);
 
 FunctionTable* ode_solve(
-    BiVarFunc func, 
+    BiVarFunc f,
     Coord anchor,
     double r_start, 
     double r_end, 

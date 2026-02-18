@@ -42,7 +42,7 @@ LossPair var_solve(
 }
 
 FunctionTable* ode_solve(
-    const BiVarFunc func,
+    const BiVarFunc f,
     const Coord anchor,
     const double r_start,
     const double r_end,
@@ -54,26 +54,36 @@ FunctionTable* ode_solve(
     table->r_start = r_start;
     table->r_end = r_end;
 
-    const double step = (r_end - r_start) / r_amt;
-    const int pos = (int)((anchor.x - r_start) / step);
+    const double h = (r_end - r_start) / (double) r_amt;
+    const int pos = lround((anchor.x - r_start) / h);
 
     double x = anchor.x;
     double y = anchor.y;
 
     table->data[pos] = anchor.y;
     for (int i = pos + 1; i < r_amt; i++) {
+        const double k1 = f(x, y);
+        const double k2 = f(x + h/2, y + h/2 * k1);
+        const double k3 = f(x + h/2, y + h/2 * k2);
+        const double k4 = f(x + h, y + h * k3);
+
+        y += h/6 * (k1 + 2*k2 + 2*k3 + k4);
         table->data[i] = y;
-        y += step * func(x, y);
-        x += step;
+        x += h;
     }
 
     x = anchor.x;
     y = anchor.y;
 
     for (int i = pos - 1; i >= 0; i--) {
+        const double k1 = f(x, y);
+        const double k2 = f(x - h/2, y - h/2 * k1);
+        const double k3 = f(x - h/2, y - h/2 * k2);
+        const double k4 = f(x - h, y - h * k3);
+
+        y -= h/6 * (k1 + 2*k2 + 2*k3 + k4);
         table->data[i] = y;
-        y -= step * func(x, y);
-        x -= step;
+        x -= h;
     }
 
     return table;
